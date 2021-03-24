@@ -56,6 +56,55 @@ struct timeval tv;
 
 struct gps_data_t gps_d;
 
+void debug_event(ev_t e) {
+  if ( e==EV_SCAN_TIMEOUT   ) { fprintf(stdout, "DEBUG: event EV_SCAN_TIMEOUT\n"   ); }
+  if ( e==EV_BEACON_FOUND   ) { fprintf(stdout, "DEBUG: event EV_BEACON_FOUND\n"   ); }
+  if ( e==EV_BEACON_MISSED  ) { fprintf(stdout, "DEBUG: event EV_BEACON_MISSED\n"  ); }
+  if ( e==EV_BEACON_TRACKED ) { fprintf(stdout, "DEBUG: event EV_BEACON_TRACKED\n" ); }
+  if ( e==EV_JOINING        ) { fprintf(stdout, "DEBUG: event EV_JOINING\n"        ); }
+  if ( e==EV_JOINED         ) { fprintf(stdout, "DEBUG: event EV_JOINED\n"         ); }
+  if ( e==EV_RFU1           ) { fprintf(stdout, "DEBUG: event EV_RFU1\n"           ); }
+  if ( e==EV_JOIN_FAILED    ) { fprintf(stdout, "DEBUG: event EV_JOIN_FAILED\n"    ); }
+  if ( e==EV_REJOIN_FAILED  ) { fprintf(stdout, "DEBUG: event EV_REJOIN_FAILED\n"  ); }
+  if ( e==EV_TXCOMPLETE     ) { fprintf(stdout, "DEBUG: event EV_TXCOMPLETE\n"     ); }
+  if ( e==EV_LOST_TSYNC     ) { fprintf(stdout, "DEBUG: event EV_LOST_TSYNC\n"     ); }
+  if ( e==EV_RESET          ) { fprintf(stdout, "DEBUG: event EV_RESET\n"          ); }
+  if ( e==EV_RXCOMPLETE     ) { fprintf(stdout, "DEBUG: event EV_RXCOMPLETE\n"     ); }
+  if ( e==EV_LINK_DEAD      ) { fprintf(stdout, "DEBUG: event EV_LINK_DEAD\n"      ); }
+  if ( e==EV_LINK_ALIVE     ) { fprintf(stdout, "DEBUG: event EV_LINK_ALIVE\n"     ); }
+  fflush(stdout);
+}
+
+void debug_txrxFlags(u1_t f) {
+  if ( ( f & TXRX_ACK    ) == TXRX_ACK    ) { fprintf(stdout, "DEBUG: txrxFlags TXRX_ACK\n"   ); };
+  if ( ( f & TXRX_NACK   ) == TXRX_NACK   ) { fprintf(stdout, "DEBUG: txrxFlags TXRX_NACK\n"  ); };
+  if ( ( f & TXRX_NOPORT ) == TXRX_NOPORT ) { fprintf(stdout, "DEBUG: txrxFlags TXRX_NOPORT\n");  };
+  if ( ( f & TXRX_PORT   ) == TXRX_PORT   ) { fprintf(stdout, "DEBUG: txrxFlags TXRX_PORT\n"  );  };
+  if ( ( f & TXRX_DNW1   ) == TXRX_DNW1   ) { fprintf(stdout, "DEBUG: txrxFlags TXRX_DNW1\n"  );  };
+  if ( ( f & TXRX_DNW2   ) == TXRX_DNW2   ) { fprintf(stdout, "DEBUG: txrxFlags TXRX_DNW2\n"  );  };
+  if ( ( f & TXRX_PING   ) == TXRX_PING   ) { fprintf(stdout, "DEBUG: txrxFlags TXRX_PING\n"  );  };
+  fflush(stdout);
+}
+
+void debug_lmic(lmic_t l) {
+  fprintf(stdout, "DEBUG: LMIC:\n" );
+  fprintf(stdout, "DEBUG: - frame ........ ?\n" );
+  fprintf(stdout, "DEBUG: - dataLen ...... %u\n", l.dataLen );
+  fprintf(stdout, "DEBUG: - dataBeg ...... %u\n", l.dataBeg );
+  fprintf(stdout, "DEBUG: - txCnt ........ %u\n", l.txCnt );
+  fprintf(stdout, "DEBUG: - txrxFlags .... %u\n", l.txrxFlags );
+
+  fprintf(stdout, "DEBUG: - pendTxPort ... %u\n", l.pendTxPort );
+  fprintf(stdout, "DEBUG: - pendTxConf ... %u\n", l.pendTxConf );
+  fprintf(stdout, "DEBUG: - pendTxLen .... %u\n", l.pendTxLen );
+  fprintf(stdout, "DEBUG: - pendTxData ... ?\n" );
+  fprintf(stdout, "DEBUG: - bcnChnl ...... %u\n", l.bcnChnl );
+  fprintf(stdout, "DEBUG: - bcnRxsyms .... %u\n", l.bcnRxsyms );
+  fprintf(stdout, "DEBUG: - bcnRxtime .... ?\n" );
+  fprintf(stdout, "DEBUG: - bcnInfo ...... ?\n" ); 
+  fflush(stdout);
+}
+
 // LoRaWAN Application identifier (AppEUI)
 // Not used in this example
 static const u1_t APPEUI[8]  = { 0x70, 0xB3, 0xD5, 0x7E, 0xD0, 0x03, 0xFE, 0x74 };
@@ -108,11 +157,16 @@ void onEvent (ev_t ev) {
       // note: this includes the receive window!
       case EV_TXCOMPLETE:
           // use this event to keep track of actual transmissions
+          debug_lmic( LMIC );
           fprintf(stdout, "Event EV_TXCOMPLETE, time: %d\n", millis() / 1000);
+          fflush(stdout);
           if(LMIC.dataLen) { // data received in rx slot after tx
               //debug_buf(LMIC.frame+LMIC.dataBeg, LMIC.dataLen);
               fprintf(stdout, "Data Received!\n");
+              fflush(stdout);
           }
+          fprintf( stdout, "DEBUG: txrxFlags %u\n", LMIC.txrxFlags );
+          debug_txrxFlags( LMIC.txrxFlags );
           break;
        default:
           break;
