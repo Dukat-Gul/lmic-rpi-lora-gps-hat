@@ -74,7 +74,7 @@ static const u1_t ARTKEY[16] = { 0x0A, 0x50, 0x50, 0x01, 0x40, 0x07, 0x06, 0x00,
 
 // LoRaWAN end-device address (DevAddr)
 // See http://thethingsnetwork.org/wiki/AddressSpace
-static const u4_t DEVADDR = 0x2600212B; // <-- Change this address for every node!
+static const u4_t DEVADDR = 0x260612C7; // <-- Change this address for every node!
 
 //////////////////////////////////////////////////
 // APPLICATION CALLBACKS
@@ -166,16 +166,17 @@ static void do_send(osjob_t* j){
       time_t t=time(NULL);
       fprintf(stdout, "[%x] (%ld) %s\n", hal_ticks(), t, ctime(&t));
       // Show TX channel (channel numbers are local to LMIC)
+      printf("Send, txCnhl: %u \n Opmode check: ", LMIC.txChnl);
       // Check if there is not a current TX/RX job running
     if (LMIC.opmode & (1 << 7)) {
-      fprintf(stdout, "OP_TXRXPEND, not sending");
+      fprintf(stdout, "OP_TXRXPEND, not sending\n");
     } else {
       // Prepare upstream data transmission at the next possible time.
 if (coords[0] != '!') {
-	fprintf(stdout,"Sending GPS data");
+	fprintf(stdout,"Sending GPS data\n");
       LMIC_setTxData2(1, coords, 8, 0);
 } else {
-	fprintf(stdout,"NOT Sending GPS data");
+	fprintf(stdout,"NOT Sending GPS data\n");
       LMIC_setTxData2(1, coords, 1, 0);
 }
     }
